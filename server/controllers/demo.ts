@@ -36,7 +36,11 @@ export default class DemoCtrl extends BaseCtrl {
       const name = req.query.name;
       const startIndex = req.query.startIndex;
       const maxLimit = req.query.maxLimit;
-      let args = {userqueries: name}
+      interface Type {
+        [key: string]: any
+      };
+      var args: Type = {};
+      args.userqueries = name;
       if (req.query.year) {
         args.year = req.query.year;
       }
