@@ -39,7 +39,8 @@
       <div class="search-results pt-1"
 		    infiniteScroll
         debounce
-		    [infiniteScrollDistance]="10"
+        infiniteScrollDistance="0"
+        infiniteScrollThrottle="10"
 		    (scrolled)="getMore()">
         <div class="pt-1">
           <p>Results:</p>
