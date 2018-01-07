@@ -12,7 +12,10 @@ import { NotFoundComponent } from './not-found/not-found.component';
 
 import { AuthGuardLogin } from './services/auth-guard-login.service';
 import { AuthGuardAdmin } from './services/auth-guard-admin.service';
-import { DemoComponent } from './demo/demo.component';
+
+import { HomeComponent } from './home/home.component';
+import { SearchComponent } from './search/search.component';
+import { SearchPageComponent } from './search-page/search-page.component';
 
 const routes: Routes = [
   { path: '', component: AboutComponent },
@@ -23,8 +26,9 @@ const routes: Routes = [
   { path: 'account', component: AccountComponent, canActivate: [AuthGuardLogin] },
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuardAdmin] },
   { path: 'notfound', component: NotFoundComponent },
-  { path: 'demo', component: DemoComponent },
-  { path: 'demo/search', component: DemoComponent },
+  { path: 'home', component: HomeComponent },
+  { path: 'home/search', component: SearchComponent },
+  { path: 'home/search/:id', component: SearchPageComponent },
   { path: '**', redirectTo: '/notfound' },
 ];
 

@@ -16,12 +16,21 @@ import { LogoutComponent } from './logout/logout.component';
 import { AccountComponent } from './account/account.component';
 import { AdminComponent } from './admin/admin.component';
 import { NotFoundComponent } from './not-found/not-found.component';
-import { DemoComponent } from './demo/demo.component';
+
+import { HomeComponent } from './home/home.component';
+import { SearchBoxComponent } from './search-box/search-box.component';
+import { SearchComponent } from './search/search.component';
+import { SearchListComponent } from './search-list/search-list.component';
+import { SearchFilterComponent } from './search-filter/search-filter.component';
+import { SearchPageComponent } from './search-page/search-page.component';
+import { SearchPageDetailsComponent } from './search-page-details/search-page-details.component';
+import { SearchPageLeftnavComponent } from './search-page-leftnav/search-page-leftnav.component';
+
 import { NgbdTypeaheadBasic } from './typeahead/typeahead-basic';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DemoService } from './services/demo.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {DropdownModule} from "ng2-dropdown";
+import { SearchService } from './services/search.service';
 
 @NgModule({
   declarations: [
@@ -34,8 +43,15 @@ import {DropdownModule} from "ng2-dropdown";
     AccountComponent,
     AdminComponent,
     NotFoundComponent,
-    DemoComponent,
-    NgbdTypeaheadBasic
+    NgbdTypeaheadBasic,
+    HomeComponent,
+    SearchBoxComponent,
+    SearchComponent,
+    SearchListComponent,
+    SearchFilterComponent,
+    SearchPageComponent,
+    SearchPageDetailsComponent,
+    SearchPageLeftnavComponent
   ],
   imports: [
     RoutingModule,
@@ -50,7 +66,7 @@ import {DropdownModule} from "ng2-dropdown";
     AuthGuardAdmin,
     CatService,
     UserService,
-    DemoService
+    SearchService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

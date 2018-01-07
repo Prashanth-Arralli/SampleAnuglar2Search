@@ -1,0 +1,12 @@
+<div *ngIf="typeFilters.length" class="pt-1 search-filter-align">
+    <a><strong> Filter By Doc Type</strong></a>
+      <div class="checkbox" *ngFor="let filter of typeFilters">
+        <input type="checkbox" [checked]="filter.value" (change)="addFilter(filter.name, 'doctypes')" /><a class="filter-label-padding">{{filter.name}}</a>
+      </div>
+</div>
+<div *ngIf="yearFilters.length" class="pt-2 search-filter-align">
+    <a><strong> Filter By Year</strong></a>
+      <div class="checkbox" *ngFor="let filter of yearFilters">
+        <input type="checkbox" [checked]="filter.value" (change)="addFilter(filter.name, 'years')" /><a class="filter-label-padding">{{filter.name}}</a>
+      </div>
+</div>

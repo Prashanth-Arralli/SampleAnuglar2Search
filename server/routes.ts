@@ -1,12 +1,12 @@
 import * as express from 'express';
 
 import CatCtrl from './controllers/cat';
-import DemoCtrl from './controllers/demo';
+import SearchCtrl from './controllers/search';
 import UserCtrl from './controllers/user';
 import Cat from './models/cat';
 import User from './models/user';
 
-import Demo from './models/demo';
+import Search from './models/search';
 
 export default function setRoutes(app) {
 
@@ -14,7 +14,7 @@ export default function setRoutes(app) {
 
   const catCtrl = new CatCtrl();
   const userCtrl = new UserCtrl();
-  const demoCtrl = new DemoCtrl();
+  const searchCtrl = new SearchCtrl();
 
   // Cats
   router.route('/cats').get(catCtrl.getAll);
@@ -33,9 +33,10 @@ export default function setRoutes(app) {
   router.route('/user/:id').put(userCtrl.update);
   router.route('/user/:id').delete(userCtrl.delete);
 
-  router.route('/search/items').get(demoCtrl.getSearchList);
-  router.route('/search/keywords').get(demoCtrl.getKeywords);
-  router.route('/search/filters').get(demoCtrl.getFilters);
+  router.route('/search/items').get(searchCtrl.getSearchList);
+  router.route('/search/keywords').get(searchCtrl.getKeywords);
+  router.route('/search/filters').get(searchCtrl.getFilters);
+  router.route('/search/:id').get(searchCtrl.findByDocId);
 
   // Apply the routes to our application with the prefix /api
   app.use('/api', router);

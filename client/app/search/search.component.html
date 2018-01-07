@@ -1,0 +1,14 @@
+<div class="row p-1">
+  <div class="col-sm-3 search-filter-border">
+    <app-search-filter [yearFilters]="yearFilters" [typeFilters]="typeFilters" (applyFilter)="applyFilter($event)"></app-search-filter>
+  </div>
+  <div class="col-sm-9 search-list-border">
+    <app-search-box [states]="keywords"></app-search-box>
+    <div *ngIf="timeTaken" class="pt-1">
+      Displaying <strong>1</strong> - <strong>{{searchList.length}}</strong> of <strong>{{total}}</strong> results <strong>({{timeTaken}} seconds)</strong>
+    </div>
+    <div class="pt-1">
+      <app-search-list [searchList]="searchList" [loading]="loading" (showMore)="showMore()"></app-search-list>
+    </div>
+  </div>
+</div>

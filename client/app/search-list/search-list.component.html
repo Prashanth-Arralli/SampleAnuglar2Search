@@ -1,0 +1,16 @@
+<div style="border-1" class="search-results"
+  infiniteScroll
+  debounce
+  infiniteScrollDistance="0"
+  infiniteScrollThrottle="10"
+  (scrolled)="getMore()">
+  <div *ngFor="let item of searchList" class="pt-1">
+    <a routerLink="/home/search/{{item._id}}" routerLinkActive="active" class="search-list-title">{{item.name}}</a>
+    <p class="search-list-description" [innerHTML]="item.description"></p>
+  </div>
+  <div *ngIf="loading">
+    <div class="loader-margin">
+      <i class="fa fa-spinner fa-spin fa-2x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>

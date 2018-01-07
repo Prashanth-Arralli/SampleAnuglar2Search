@@ -1,0 +1,25 @@
+<div class="pl-1" *ngIf="doctype == 'act' || doctype == 'section'">
+  <div *ngFor="let section of sections">
+    <p [innerHTML]="section">{{section}}</p>
+  </div>
+</div>
+<div class="pl-1" *ngIf="doctype == 'case'">
+  <div *ngIf="userqueries.length">
+    <p><strong>User Queries</strong></p>
+    <div *ngFor="let query of userqueries">
+      <p class="pl-1">- {{query}}</p>
+    </div>
+  </div>
+  <div *ngIf="cites.length">
+    <p><strong>Cites</strong></p>
+    <div *ngFor="let cite of cites">
+      <p class="pl-1">- {{cite}}</p>
+    </div>
+  </div>
+  <div *ngIf="citedBy.length">
+    <p><strong>Cited By</strong></p>
+    <div *ngFor="let item of citedBy">
+      <p class="pl-1">- {{item}}</p>
+    </div>
+</div>
+</div>

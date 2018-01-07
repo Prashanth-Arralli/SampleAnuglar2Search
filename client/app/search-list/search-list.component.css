@@ -1,0 +1,12 @@
+.search-list-title {
+  font-size: 20px;
+  color: blue;
+}
+.search-list-description {
+  left-padding: 5px;
+}
+
+.loader-margin {
+  margin: auto;
+  width: 0%;
+}

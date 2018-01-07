@@ -10,15 +10,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var demo_1 = require("../models/demo");
+var search_1 = require("../models/search");
 var base_1 = require("./base");
-var DemoCtrl = (function (_super) {
-    __extends(DemoCtrl, _super);
-    function DemoCtrl() {
+var SearchCtrl = (function (_super) {
+    __extends(SearchCtrl, _super);
+    function SearchCtrl() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.model = demo_1.default;
+        _this.model = search_1.default;
         _this.getKeywords = function (req, res) {
-            console.log(req.headers.authorization);
             if (!req.headers.authorization || _this.hashCode().toString() !== req.headers.authorization.split("=")[1].toString()) {
                 res.status(403).json({ response: "unauthorized" });
             }
@@ -32,7 +31,6 @@ var DemoCtrl = (function (_super) {
             }
         };
         _this.getFilters = function (req, res) {
-            console.log(req.headers.authorization);
             if (!req.headers.authorization || _this.hashCode().toString() !== req.headers.authorization.split("=")[1].toString()) {
                 res.status(403).json({ response: "unauthorized" });
             }
@@ -46,48 +44,88 @@ var DemoCtrl = (function (_super) {
                 });
             }
         };
+        _this.findByDocId = function (req, res) {
+            if (!req.headers.authorization || _this.hashCode().toString() !== req.headers.authorization.split("=")[1].toString()) {
+                res.status(403).json({ response: "unauthorized" });
+            }
+            else {
+                var _id_1 = req.params.id;
+                _this.model.find({ _id: _id_1 }, function (err, docs) {
+                    if (err) {
+                        return console.error(err);
+                    }
+                    var type = docs[0].doctype;
+                    if (type == 'act') {
+                        _this.model.find({ docparent: docs[0].docid }, { name: 1 }, function (err, sections) {
+                            if (err) {
+                                return console.error(err);
+                            }
+                            docs[0].sections = sections.map(function (it) {
+                                return it.name;
+                            });
+                            res.status(200).json(docs);
+                        });
+                    }
+                    else if (type == 'section') {
+                        _this.model.find({ docparent: docs[0].docparent }, { name: 1 }, function (err, sections) {
+                            if (err) {
+                                return console.error(err);
+                            }
+                            sections = sections.map(function (it) {
+                                if (it._id == _id_1) {
+                                    it.name = it.name + '(Active)';
+                                }
+                                return it.name;
+                            });
+                            docs[0].sections = sections;
+                            res.status(200).json(docs);
+                        });
+                    }
+                    else {
+                        res.status(200).json(docs);
+                    }
+                });
+            }
+        };
         _this.getSearchList = function (req, res) {
             if (!req.headers.authorization || _this.hashCode().toString() !== req.headers.authorization.split("=")[1].toString()) {
                 res.status(403).json({ response: "unauthorized" });
             }
             else {
                 var name_1 = req.query.name;
-                var startIndex_1 = req.query.startIndex;
-                var maxLimit_1 = req.query.maxLimit;
-                var args_1 = { userqueries: name_1 };
+                var startIndex = req.query.startIndex;
+                var maxLimit = req.query.maxLimit;
+                ;
+                var args = {};
+                args.userqueries = name_1;
                 if (req.query.year) {
-                    args_1.year = req.query.year;
+                    args.year = { $in: req.query.year.split(',') };
                 }
                 if (req.query.doctype) {
-                    args_1.doctype = req.query.doctype;
+                    args.doctype = { $in: req.query.doctype.split(',') };
                 }
-                if (req.query.category) {
-                    args_1.category = req.query.category;
-                }
-                var total_1 = 0;
-                _this.model.count(args_1)
-                    .then(function (count) {
-                    total_1 = count;
-                    _this.model.find(args_1, function (err, docs) {
-                        if (err) {
-                            return console.error(err);
-                        }
-                        docs.map(function (item) {
-                            item.description = item.description.split(" ").splice(0, 50).join(" ");
-                        });
-                        var response = {
-                            data: docs,
-                            total: total_1
-                        };
-                        res.status(200).json(response);
-                    }).skip(Number(startIndex_1)).limit(Number(maxLimit_1));
+                var total = 0;
+                _this.model.paginate(args, { page: Number(startIndex), limit: Number(maxLimit), select: 'name description' })
+                    .then(function (result, err) {
+                    if (err) {
+                        return console.error(err);
+                    }
+                    var docs = result.docs;
+                    docs.map(function (item) {
+                        item.description = item.description.split(" ").splice(0, 50).join(" ");
+                    });
+                    var response = {
+                        data: docs,
+                        total: result.total
+                    };
+                    res.status(200).json(response);
                 });
             }
         };
         return _this;
     }
-    DemoCtrl.prototype.hashCode = function () {
-        var str = 'demoSearchModule';
+    SearchCtrl.prototype.hashCode = function () {
+        var str = 'SearchSearchModule';
         var hash = 0;
         for (var i = 0; i < str.length; i++) {
             var char = str.charCodeAt(i);
@@ -96,7 +134,7 @@ var DemoCtrl = (function (_super) {
         }
         return hash;
     };
-    return DemoCtrl;
+    return SearchCtrl;
 }(base_1.default));
-exports.default = DemoCtrl;
+exports.default = SearchCtrl;
 //# sourceMappingURL=demo.js.map

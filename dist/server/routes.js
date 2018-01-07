@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var cat_1 = require("./controllers/cat");
-var demo_1 = require("./controllers/demo");
+var search_1 = require("./controllers/search");
 var user_1 = require("./controllers/user");
 function setRoutes(app) {
     var router = express.Router();
     var catCtrl = new cat_1.default();
     var userCtrl = new user_1.default();
-    var demoCtrl = new demo_1.default();
+    var searchCtrl = new search_1.default();
     // Cats
     router.route('/cats').get(catCtrl.getAll);
     router.route('/cats/count').get(catCtrl.count);
@@ -24,9 +24,10 @@ function setRoutes(app) {
     router.route('/user/:id').get(userCtrl.get);
     router.route('/user/:id').put(userCtrl.update);
     router.route('/user/:id').delete(userCtrl.delete);
-    router.route('/search/items').get(demoCtrl.getSearchList);
-    router.route('/search/keywords').get(demoCtrl.getKeywords);
-    router.route('/search/filters').get(demoCtrl.getFilters);
+    router.route('/search/items').get(searchCtrl.getSearchList);
+    router.route('/search/keywords').get(searchCtrl.getKeywords);
+    router.route('/search/filters').get(searchCtrl.getFilters);
+    router.route('/search/:id').get(searchCtrl.findByDocId);
     // Apply the routes to our application with the prefix /api
     app.use('/api', router);
 }
