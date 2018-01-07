@@ -74,7 +74,8 @@ export default class SearchCtrl extends BaseCtrl {
         [key: string]: any
       };
       var args: Type = {};
-      args.userqueries = name;
+      //args.userqueries = name;
+      args['$text'] = { '$search': name }
       if (req.query.year) {
         args.year = { $in: req.query.year.split(',')};
       }
@@ -82,7 +83,7 @@ export default class SearchCtrl extends BaseCtrl {
         args.doctype = {$in: req.query.doctype.split(',')};
       }
       let total = 0;
-      this.model.paginate(args, {page: Number(startIndex), limit: Number(maxLimit), select: 'name description'})
+      this.model.paginate(args, {page: Number(startIndex), limit: Number(maxLimit),sort: { score: {"$meta": "textScore"} } ,select: {score: {"$meta": "textScore"}, 'name':1, 'description': 1}})
       .then((result, err) => {
         if (err) { return console.error(err); }
         let docs = result.docs;
