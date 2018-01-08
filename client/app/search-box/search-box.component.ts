@@ -1,4 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+//typeahead comp and search buttom -used by home and search comp
+
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -8,12 +10,24 @@ import { Router } from '@angular/router';
 })
 export class SearchBoxComponent implements OnInit {
   @Input() states: Array<string>;
+  @Output() searchResult: EventEmitter<string> = new EventEmitter<string>();
   constructor(private router: Router) { }
 
   ngOnInit() {
   }
+
+  //event triggers on Enter from typeahead comp and propagates event to parent
+  searchData(key) {
+    this.searchResult.emit(key);
+  }
+
+  // on Click search button - activte search routes & event neeeded only for seatch page(not home)
   openSearchList() {
     const key = (<HTMLInputElement>document.getElementById('typeahead-basic')).value;
-    this.router.navigateByUrl('/home/search?q=' + key);
+    if (key && this.states.indexOf(key) !==  -1) {
+      this.router.navigateByUrl('/search?q=' + key);
+      this.searchResult.emit(key);
+    }
+
   }
 }

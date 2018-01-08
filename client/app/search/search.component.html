@@ -3,7 +3,7 @@
     <app-search-filter [yearFilters]="yearFilters" [typeFilters]="typeFilters" (applyFilter)="applyFilter($event)"></app-search-filter>
   </div>
   <div class="col-sm-9 search-list-border">
-    <app-search-box [states]="keywords"></app-search-box>
+    <app-search-box [states]="keywords" (searchResult)="searchResult($event)"></app-search-box>
     <div *ngIf="timeTaken" class="pt-1">
       Displaying <strong>1</strong> - <strong>{{searchList.length}}</strong> of <strong>{{total}}</strong> results <strong>({{timeTaken}} seconds)</strong>
     </div>

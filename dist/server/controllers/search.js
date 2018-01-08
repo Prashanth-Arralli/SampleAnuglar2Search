@@ -18,11 +18,13 @@ var SearchCtrl = (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.model = search_1.default;
         _this.getKeywords = function (req, res) {
+            //check for user authorization id in headers and compare with same hash code generated in server side(hashCode function)
             if (!req.headers.authorization || _this.hashCode().toString() !== req.headers.authorization.split("=")[1].toString()) {
                 res.status(403).json({ response: "unauthorized" });
             }
             else {
-                _this.model.find({}, { userqueries: 1 }, function (err, docs) {
+                //filtes non-empty userqueries only
+                _this.model.find({ userqueries: { $exists: true, $ne: [] } }, { userqueries: 1 }, function (err, docs) {
                     if (err) {
                         return console.error(err);
                     }
@@ -36,6 +38,7 @@ var SearchCtrl = (function (_super) {
             }
             else {
                 var key = req.query.key;
+                //fetch only required fields using projections
                 _this.model.find({ userqueries: key }, { doctype: 1, year: 1, category: 1 }, function (err, docs) {
                     if (err) {
                         return console.error(err);
@@ -60,6 +63,7 @@ var SearchCtrl = (function (_super) {
                             if (err) {
                                 return console.error(err);
                             }
+                            //return array(section) list instead of object(id, section) list
                             docs[0].sections = sections.map(function (it) {
                                 return it.name;
                             });
@@ -71,8 +75,10 @@ var SearchCtrl = (function (_super) {
                             if (err) {
                                 return console.error(err);
                             }
+                            //return array(section) list instead of object(id, section) list
                             sections = sections.map(function (it) {
                                 if (it._id == _id_1) {
+                                    //append active for the queried keyword
                                     it.name = it.name + '(Active)';
                                 }
                                 return it.name;
@@ -88,6 +94,7 @@ var SearchCtrl = (function (_super) {
             }
         };
         _this.getSearchList = function (req, res) {
+            //check for user authorization id in headers
             if (!req.headers.authorization || _this.hashCode().toString() !== req.headers.authorization.split("=")[1].toString()) {
                 res.status(403).json({ response: "unauthorized" });
             }
@@ -97,7 +104,9 @@ var SearchCtrl = (function (_super) {
                 var maxLimit = req.query.maxLimit;
                 ;
                 var args = {};
-                args.userqueries = name_1;
+                //use search text - indexed in mongo db
+                args['$text'] = { '$search': name_1 };
+                // add filters only if exists
                 if (req.query.year) {
                     args.year = { $in: req.query.year.split(',') };
                 }
@@ -105,13 +114,14 @@ var SearchCtrl = (function (_super) {
                     args.doctype = { $in: req.query.doctype.split(',') };
                 }
                 var total = 0;
-                _this.model.paginate(args, { page: Number(startIndex), limit: Number(maxLimit), select: 'name description' })
+                _this.model.paginate(args, { page: Number(startIndex), limit: Number(maxLimit), sort: { score: { "$meta": "textScore" } }, select: { score: { "$meta": "textScore" }, 'name': 1, 'description': 1 } })
                     .then(function (result, err) {
                     if (err) {
                         return console.error(err);
                     }
                     var docs = result.docs;
                     docs.map(function (item) {
+                        // truncate description to 50 words
                         item.description = item.description.split(" ").splice(0, 50).join(" ");
                     });
                     var response = {

@@ -15,6 +15,7 @@ export class SearchFilterComponent implements OnInit {
 
   ngOnInit() {
   }
+
   addFilter(value, field) {
     this.applyFilter.emit({value, field});
   }

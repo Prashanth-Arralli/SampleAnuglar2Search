@@ -1,3 +1,5 @@
+//description : search item details parent - fetching data by ID of item and propagates to details and left nav components
+
 import { Component, OnInit } from '@angular/core';
 import { SearchService } from '../services/search.service';
 
@@ -19,7 +21,7 @@ export class SearchPageComponent implements OnInit {
   citedBy = [];
 
   ngOnInit() {
-    const id = window.location.pathname.split('/')[3];
+    const id = window.location.pathname.split('/')[2];
     this.findByDocId(id);
   }
 
@@ -29,12 +31,13 @@ export class SearchPageComponent implements OnInit {
         this.name = res[0].name;
         this.description = res[0].description;
         this.doctype = res[0].doctype
-        if (this.doctype === 'act') {
+        //post process based on doctype
+        if (this.doctype === 'act') { // act -show sections
           this.sections = [];
           res[0].sections.map((it) => {
             this.sections.push(it);
           })
-        } else if (this.doctype === 'section') {
+        } else if (this.doctype === 'section') { //section - show sections and bold active one
           this.sections = [];
           res[0].sections.map((it) => {
             if ( it.indexOf('(Active)') === -1 ) {
@@ -44,7 +47,7 @@ export class SearchPageComponent implements OnInit {
             }
 
           })
-        } else {
+        } else { //case - show details
           this.userqueries = res[0].userqueries;
           this.cites = [res[0].citation];
           this.citedBy = [res[0].score];

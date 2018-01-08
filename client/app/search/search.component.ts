@@ -1,3 +1,5 @@
+//Description - search list page(filters) - fetches all data here and propagates relevant data to children
+
 import { Component, OnInit } from '@angular/core';
 import {Router, ActivatedRoute, Params} from '@angular/router';
 import { SearchService } from '../services/search.service';
@@ -26,15 +28,21 @@ export class SearchComponent implements OnInit {
 
 
   constructor(private searchService: SearchService,
-              private activatedRoute: ActivatedRoute) { }
+              private activatedRoute: ActivatedRoute,
+            private router: Router) { }
 
   ngOnInit() {
+    //fetch keywords and set keyword from URL
     this.getKeywords();
     this.activatedRoute.queryParams.subscribe((params: Params) => {
         this.key = params['q'];
-        this.getResults();
-
     });
+  }
+
+  //fetch Results on Enter - typeahead comp - listens to event
+  searchResult(key) {
+    this.key = key;
+    this.getResults();
   }
 
   getKeywords() {
@@ -46,13 +54,17 @@ export class SearchComponent implements OnInit {
           });
         });
         this.keywords = this.keywords.filter((elem, index, self) => index === self.indexOf(elem));
-        console.log(this.keywords);
+        if (this.key && this.keywords.indexOf(this.key) !== -1) {
+          this.getResults();
+        } else {
+          this.router.navigateByUrl('/');
+        }
       },
       error => console.log(error)
     )
   }
 
-
+  //on select checkbox - event bind
   applyFilter(params) {
     if (this[params.field].indexOf(params.value) === -1){
       this[params.field].push(params.value);
@@ -63,6 +75,7 @@ export class SearchComponent implements OnInit {
     this.getResultOnSearch();
   }
 
+  // reset after change in keyword or applying filters
   resetState(key) {
     this.startIndex = 1;
     this.searchList = [];
@@ -72,6 +85,7 @@ export class SearchComponent implements OnInit {
     }
   }
 
+  //fetch results on click- search button
   getResultOnSearch() {
     const key = document.getElementById('typeahead-basic').innerHTML || this.key;
     if (this.keywords.indexOf(key) !== -1) {
@@ -80,6 +94,7 @@ export class SearchComponent implements OnInit {
     }
   }
 
+  //fetch filters relevant to keyword entered
   getFilters(key) {
     this.searchService.getFilters(key).subscribe(
       res => {
@@ -112,12 +127,14 @@ export class SearchComponent implements OnInit {
   getResults() {
     let key = this.key
     if (key) {
+      //if key is different than previous fetch - reset filters & data
       if (key !== this.previousSearch) {
         this.resetState(key);
         this.years = [];
         this.doctypes = [];
       }
-      if (this.searchList.length !== this.maxLimit + this.startIndex) {
+      //check if data equals total db count - applicable on fetch more
+      if (this.startIndex === 1 || this.searchList.length !== this.total) {
         const startIndex = this.startIndex;
         const maxLimit = this.maxLimit;
         const years = this.years;
@@ -136,6 +153,7 @@ export class SearchComponent implements OnInit {
             this.total = res.total;
             this.searchList = this.searchList.concat(res.data);
             const end = new Date().getTime();
+            //calculate time taken for db call
             this.timeTaken = (end - start) / 1000;
             this.loading = false;
           },
@@ -150,6 +168,7 @@ export class SearchComponent implements OnInit {
     }
   }
 
+  // showMore - event triggers in search-list-component on scrolling down the window
   showMore() {
     if (!this.loading) {
       this.startIndex++;

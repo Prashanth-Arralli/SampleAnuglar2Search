@@ -1,1 +1,1 @@
-<input id="typeahead-basic" type="text" class="form-control" [(ngModel)]="model" [ngbTypeahead]="search"/>
+<input id="typeahead-basic" type="text" (keyup.enter)="onEnterKey()" class="form-control" [(ngModel)]="model" [ngbTypeahead]="search" placeholder="Enter Keyword"/>

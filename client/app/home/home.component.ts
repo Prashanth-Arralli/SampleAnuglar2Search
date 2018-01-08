@@ -1,3 +1,5 @@
+// Description - only search box - Home Page
+
 import { Component, OnInit } from '@angular/core';
 import { SearchService } from '../services/search.service';
 
@@ -16,6 +18,7 @@ export class HomeComponent implements OnInit {
     this.getKeywords();
   }
 
+  //fetch keywords on init
   getKeywords() {
     this.searchService.getKeywords().subscribe(
       res => {

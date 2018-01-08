@@ -1,5 +1,6 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, EventEmitter, Output} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
+import { Router } from '@angular/router';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -15,12 +16,23 @@ import 'rxjs/add/operator/distinctUntilChanged';
 export class NgbdTypeaheadBasic {
   public model: any;
   @Input() states: Array<string>;
+  @Output() searchData: EventEmitter<string> = new EventEmitter<string>();
+
+  constructor(private router: Router) { }
+
+  onEnterKey() {
+    const key = (<HTMLInputElement>document.getElementById('typeahead-basic')).value;
+    if (key && this.states.indexOf(key) !==  -1) {
+      this.router.navigateByUrl('/search?q=' + key);
+      this.searchData.emit(key);
+    }
+  }
 
   search = (text$: Observable<string>) =>
     text$
       .debounceTime(200)
       .distinctUntilChanged()
-      .map(term => term.length < 2 ? []
+      .map(term => term.length < 0 ? []
         : this.states.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10));
 
 }
