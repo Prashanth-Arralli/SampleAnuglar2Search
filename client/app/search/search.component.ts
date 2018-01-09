@@ -2,6 +2,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import {Router, ActivatedRoute, Params} from '@angular/router';
+import {ToasterService} from 'angular2-toaster';
 import { SearchService } from '../services/search.service';
 
 @Component({
@@ -25,11 +26,13 @@ export class SearchComponent implements OnInit {
   loading = false;
   total = 0;
   timeTaken = 0;
+  filtersActive = true;
 
 
   constructor(private searchService: SearchService,
               private activatedRoute: ActivatedRoute,
-            private router: Router) { }
+            private router: Router,
+           private toasterService: ToasterService) { }
 
   ngOnInit() {
     //fetch keywords and set keyword from URL
@@ -60,7 +63,10 @@ export class SearchComponent implements OnInit {
           this.router.navigateByUrl('/');
         }
       },
-      error => console.log(error)
+      error => {
+        console.log(error);
+        this.toasterService.pop("error","error fetching search data", "please try again");
+      }
     )
   }
 
@@ -118,9 +124,11 @@ export class SearchComponent implements OnInit {
         this.typeFilters = typeFilters.map((it) => {
           return { name: it, value: false }
         })
-
       },
-      err => console.log(err)
+      err => {
+        console.log(err);
+        this.toasterService.pop("error","error fetching filters", "please try again");
+      }
     )
   }
 
@@ -147,11 +155,12 @@ export class SearchComponent implements OnInit {
             res.data.map((item) => {
               let keys = key.split(" ");
               keys.map((it) => {
+                item.description = this.strip(item.description);
                 item.description = item.description.replace(new RegExp(it, 'g'), `<strong>${it}</strong>`);
               })
             })
             this.total = res.total;
-            this.searchList = this.searchList.concat(res.data);
+            this.setResultAndCss(res.data);
             const end = new Date().getTime();
             //calculate time taken for db call
             this.timeTaken = (end - start) / 1000;
@@ -159,6 +168,10 @@ export class SearchComponent implements OnInit {
           },
           error => {
             console.log(error);
+            this.toasterService.pop("error","error fetching data", "please try again")
+            if (this.startIndex == 1) {
+              this.searchList = [];
+            }
             this.loading = false;
           }
         );
@@ -168,12 +181,22 @@ export class SearchComponent implements OnInit {
     }
   }
 
+  setResultAndCss(data) {
+    this.searchList = this.searchList.concat(data);
+    this.filtersActive = this.yearFilters.length && this.typeFilters.length ? true: false;
+  }
+
   // showMore - event triggers in search-list-component on scrolling down the window
   showMore() {
     if (!this.loading) {
       this.startIndex++;
       this.getResultOnSearch();
     }
+  }
+  strip(html) {
+   var tmp = document.createElement("DIV");
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || "";
   }
 
 }

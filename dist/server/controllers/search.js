@@ -88,6 +88,11 @@ var SearchCtrl = (function (_super) {
                         });
                     }
                     else {
+                        console.log(docs[0].userqueries);
+                        if (docs[0].userqueries) {
+                            docs[0].userqueries.splice("\\n", 1);
+                        }
+                        console.log(docs[0].userqueries);
                         res.status(200).json(docs);
                     }
                 });

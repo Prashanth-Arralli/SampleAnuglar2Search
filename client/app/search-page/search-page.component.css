@@ -6,3 +6,7 @@
 .search-page-leftnav-border {
   border-right: 1px solid #a0a0a0;
 }
+.search-page-details-nodata {
+  margin: 0 auto;
+  width: 75%;
+}

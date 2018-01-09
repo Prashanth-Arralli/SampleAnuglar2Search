@@ -10,7 +10,8 @@ const searchSchema = new mongoose.Schema({
   category: String,
   docid: Number,
   docparent: Number,
-  sections:[String]
+  sections:[String],
+  userqueries:[String]
 }) ;
 
 searchSchema.plugin(pagination);

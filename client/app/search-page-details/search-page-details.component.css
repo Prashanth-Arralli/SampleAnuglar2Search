@@ -5,3 +5,7 @@
 .search-detail-description {
   left-padding: 5px;
 }
+.search-page-details-nodata {
+  margin: 0 auto;
+  width: 75%;
+}

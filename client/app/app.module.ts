@@ -28,6 +28,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {DropdownModule} from "ng2-dropdown";
 import { SearchService } from './services/search.service';
+import {ToasterModule, ToasterService} from 'angular2-toaster';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -53,14 +55,17 @@ import { SearchService } from './services/search.service';
     SharedModule,
     NgbModule.forRoot(),
     InfiniteScrollModule,
-    DropdownModule
+    DropdownModule,
+    ToasterModule,
+    BrowserAnimationsModule
   ],
   providers: [
     AuthService,
     AuthGuardLogin,
     AuthGuardAdmin,
     UserService,
-    SearchService
+    SearchService,
+    ToasterService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

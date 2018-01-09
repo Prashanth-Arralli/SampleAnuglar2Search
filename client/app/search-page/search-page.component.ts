@@ -2,6 +2,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { SearchService } from '../services/search.service';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'app-search-page',
@@ -10,7 +11,8 @@ import { SearchService } from '../services/search.service';
 })
 export class SearchPageComponent implements OnInit {
 
-  constructor(private searchService: SearchService) { }
+  constructor(private searchService: SearchService,
+              private toasterService: ToasterService) { }
 
   name = '';
   description =  '';
@@ -48,12 +50,16 @@ export class SearchPageComponent implements OnInit {
 
           })
         } else { //case - show details
-          this.userqueries = res[0].userqueries;
-          this.cites = [res[0].citation];
-          this.citedBy = [res[0].score];
+          this.userqueries = res[0].userqueries ? res[0].userqueries: [];
+          this.cites = res[0].citation ?[res[0].citation]: [];
+          this.citedBy =  res[0].score ? [res[0].score]: [];
         }
       },
-      error => console.log(error)
+      error => {
+        console.log(error);
+        this.toasterService.pop('error', "error fetching search data", "please try again")
+        //window.alert("error fetching search data, please try again")
+      }
     )
   }
 
