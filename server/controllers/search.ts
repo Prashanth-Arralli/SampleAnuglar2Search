@@ -11,8 +11,13 @@ export default class SearchCtrl extends BaseCtrl {
     } else {
       //filtes non-empty userqueries only
       this.model.find({userqueries: { $exists: true, $ne: [] }},{userqueries: 1}, (err, docs) => {
-        if (err) { return console.error(err); }
-        res.status(200).json(docs);
+        if (err) {
+          console.error(err);
+          res.status(500).json(err);
+        }
+        else {
+          res.status(200).json(docs);
+        }
       });
     }
   }
@@ -24,8 +29,12 @@ export default class SearchCtrl extends BaseCtrl {
       const key = req.query.key;
       //fetch only required fields using projections
       this.model.find({userqueries: key},{doctype: 1, year: 1, category: 1}, (err, docs) => {
-        if (err) { return console.error(err); }
-        res.status(200).json(docs);
+        if (err) {
+          console.error(err);
+          res.status(500).json(err);
+        } else {
+          res.status(200).json(docs);
+        }
       });
     }
   }
@@ -36,38 +45,50 @@ export default class SearchCtrl extends BaseCtrl {
     } else {
       const _id =req.params.id;
       this.model.find({_id}, (err, docs) => {
-        if (err) { return console.error(err); }
-        let type = docs[0].doctype;
-        if (type == 'act') {
-          this.model.find({docparent: docs[0].docid}, {name: 1}, (err, sections) => {
-            if (err) { return console.error(err); }
-            //return array(section) list instead of object(id, section) list
-            docs[0].sections = sections.map((it) => {
-              return it.name;
-            });
-            res.status(200).json(docs);
-          });
-        } else if ( type == 'section' ) {
-          this.model.find({docparent: docs[0].docparent}, {name: 1}, (err, sections) => {
-            if (err) { return console.error(err); }
-            //return array(section) list instead of object(id, section) list
-            sections = sections.map((it) => {
-              if (it._id == _id) {
-                //append active for the queried keyword
-                it.name = it.name + '(Active)'
-              }
-              return it.name;
-            });
-            docs[0].sections = sections;
-            res.status(200).json(docs);
-          });
+        if (err) {
+          console.error(err);
+          res.status(500).json(err);
         } else {
-          console.log(docs[0].userqueries);
-          if (docs[0].userqueries) {
-            docs[0].userqueries.splice("\\n", 1);
+          let type = docs[0].doctype;
+          if (type == 'acts') {
+            this.model.find({docparent: docs[0].docid}, {name: 1}, (err, sections) => {
+              if (err) {
+                console.error(err);
+                res.status(500).json(err);
+              } else {
+                //return array(section) list instead of object(id, section) list
+                docs[0].sections = sections.map((it) => {
+                  return it.name;
+                });
+                res.status(200).json(docs);
+              }
+            });
+          } else if ( type == 'section' ) {
+            this.model.find({docparent: docs[0].docparent}, {name: 1}, (err, sections) => {
+              if (err) {
+                console.error(err);
+                res.status(500).json(err);
+              } else {
+                //return array(section) list instead of object(id, section) list
+                sections = sections.map((it) => {
+                  if (it._id == _id) {
+                    //append active for the queried keyword
+                    it.name = it.name + '(Active)'
+                  }
+                  return it.name;
+                });
+                docs[0].sections = sections;
+                res.status(200).json(docs);
+              }
+            });
+          } else {
+            console.log(docs[0].userqueries);
+            if (docs[0].userqueries) {
+              docs[0].userqueries.splice("\\n", 1);
+            }
+            console.log(docs[0].userqueries);
+            res.status(200).json(docs);
           }
-          console.log(docs[0].userqueries);
-          res.status(200).json(docs);
         }
       })
     }
@@ -98,17 +119,21 @@ export default class SearchCtrl extends BaseCtrl {
       let total = 0;
       this.model.paginate(args, {page: Number(startIndex), limit: Number(maxLimit),sort: { score: {"$meta": "textScore"} } ,select: {score: {"$meta": "textScore"}, 'name':1, 'description': 1}})
       .then((result, err) => {
-        if (err) { return console.error(err); }
-        let docs = result.docs;
-        docs.map((item) => {
-          // truncate description to 50 words
-          item.description = item.description.split(" ").splice(0, 50).join(" ");
-        })
-        let response = {
-          data: docs,
-          total: result.total
+        if (err) {
+          console.error(err);
+          res.status(500).json(err);
+        } else {
+          let docs = result.docs;
+          docs.map((item) => {
+            // truncate description to 50 words
+            item.description = item.description.split(" ").splice(0, 50).join(" ");
+          })
+          let response = {
+            data: docs,
+            total: result.total
+          }
+          res.status(200).json(response);
         }
-        res.status(200).json(response);
       })
     }
   }

@@ -26,9 +26,12 @@ var SearchCtrl = (function (_super) {
                 //filtes non-empty userqueries only
                 _this.model.find({ userqueries: { $exists: true, $ne: [] } }, { userqueries: 1 }, function (err, docs) {
                     if (err) {
-                        return console.error(err);
+                        console.error(err);
+                        res.status(500).json(err);
                     }
-                    res.status(200).json(docs);
+                    else {
+                        res.status(200).json(docs);
+                    }
                 });
             }
         };
@@ -41,9 +44,12 @@ var SearchCtrl = (function (_super) {
                 //fetch only required fields using projections
                 _this.model.find({ userqueries: key }, { doctype: 1, year: 1, category: 1 }, function (err, docs) {
                     if (err) {
-                        return console.error(err);
+                        console.error(err);
+                        res.status(500).json(err);
                     }
-                    res.status(200).json(docs);
+                    else {
+                        res.status(200).json(docs);
+                    }
                 });
             }
         };
@@ -55,45 +61,54 @@ var SearchCtrl = (function (_super) {
                 var _id_1 = req.params.id;
                 _this.model.find({ _id: _id_1 }, function (err, docs) {
                     if (err) {
-                        return console.error(err);
-                    }
-                    var type = docs[0].doctype;
-                    if (type == 'act') {
-                        _this.model.find({ docparent: docs[0].docid }, { name: 1 }, function (err, sections) {
-                            if (err) {
-                                return console.error(err);
-                            }
-                            //return array(section) list instead of object(id, section) list
-                            docs[0].sections = sections.map(function (it) {
-                                return it.name;
-                            });
-                            res.status(200).json(docs);
-                        });
-                    }
-                    else if (type == 'section') {
-                        _this.model.find({ docparent: docs[0].docparent }, { name: 1 }, function (err, sections) {
-                            if (err) {
-                                return console.error(err);
-                            }
-                            //return array(section) list instead of object(id, section) list
-                            sections = sections.map(function (it) {
-                                if (it._id == _id_1) {
-                                    //append active for the queried keyword
-                                    it.name = it.name + '(Active)';
-                                }
-                                return it.name;
-                            });
-                            docs[0].sections = sections;
-                            res.status(200).json(docs);
-                        });
+                        console.error(err);
+                        res.status(500).json(err);
                     }
                     else {
-                        console.log(docs[0].userqueries);
-                        if (docs[0].userqueries) {
-                            docs[0].userqueries.splice("\\n", 1);
+                        var type = docs[0].doctype;
+                        if (type == 'acts') {
+                            _this.model.find({ docparent: docs[0].docid }, { name: 1 }, function (err, sections) {
+                                if (err) {
+                                    console.error(err);
+                                    res.status(500).json(err);
+                                }
+                                else {
+                                    //return array(section) list instead of object(id, section) list
+                                    docs[0].sections = sections.map(function (it) {
+                                        return it.name;
+                                    });
+                                    res.status(200).json(docs);
+                                }
+                            });
                         }
-                        console.log(docs[0].userqueries);
-                        res.status(200).json(docs);
+                        else if (type == 'section') {
+                            _this.model.find({ docparent: docs[0].docparent }, { name: 1 }, function (err, sections) {
+                                if (err) {
+                                    console.error(err);
+                                    res.status(500).json(err);
+                                }
+                                else {
+                                    //return array(section) list instead of object(id, section) list
+                                    sections = sections.map(function (it) {
+                                        if (it._id == _id_1) {
+                                            //append active for the queried keyword
+                                            it.name = it.name + '(Active)';
+                                        }
+                                        return it.name;
+                                    });
+                                    docs[0].sections = sections;
+                                    res.status(200).json(docs);
+                                }
+                            });
+                        }
+                        else {
+                            console.log(docs[0].userqueries);
+                            if (docs[0].userqueries) {
+                                docs[0].userqueries.splice("\\n", 1);
+                            }
+                            console.log(docs[0].userqueries);
+                            res.status(200).json(docs);
+                        }
                     }
                 });
             }
@@ -122,18 +137,21 @@ var SearchCtrl = (function (_super) {
                 _this.model.paginate(args, { page: Number(startIndex), limit: Number(maxLimit), sort: { score: { "$meta": "textScore" } }, select: { score: { "$meta": "textScore" }, 'name': 1, 'description': 1 } })
                     .then(function (result, err) {
                     if (err) {
-                        return console.error(err);
+                        console.error(err);
+                        res.status(500).json(err);
                     }
-                    var docs = result.docs;
-                    docs.map(function (item) {
-                        // truncate description to 50 words
-                        item.description = item.description.split(" ").splice(0, 50).join(" ");
-                    });
-                    var response = {
-                        data: docs,
-                        total: result.total
-                    };
-                    res.status(200).json(response);
+                    else {
+                        var docs = result.docs;
+                        docs.map(function (item) {
+                            // truncate description to 50 words
+                            item.description = item.description.split(" ").splice(0, 50).join(" ");
+                        });
+                        var response = {
+                            data: docs,
+                            total: result.total
+                        };
+                        res.status(200).json(response);
+                    }
                 });
             }
         };

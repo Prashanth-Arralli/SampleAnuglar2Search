@@ -1,13 +1,13 @@
 <div class="row pt-1">
-  <app-search-page-leftnav *ngIf="((doctype=='act' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length)" class="col-sm-3 pl-1 search-page-leftnav-border"
+  <app-search-page-leftnav *ngIf="((doctype=='acts' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length)" class="col-sm-3 pl-1 search-page-leftnav-border"
                             [doctype]="doctype"
                             [sections]="sections"
                             [userqueries]="userqueries"
                             [cites]="cites"
                             [citedBy]="citedBy">
   </app-search-page-leftnav>
-  <app-search-page-details [ngClass]="(((doctype=='act' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length))? 'col-sm-9 search-page-details-border': 'search-page-details-nodata'"
-                           [noLeftnav]="(((doctype=='act' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length))"
+  <app-search-page-details [ngClass]="(((doctype=='acts' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length))? 'col-sm-9 search-page-details-border': 'search-page-details-nodata'"
+                           [noLeftnav]="(((doctype=='acts' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length))"
                            [name]="name"
                            [description]="description">
   </app-search-page-details>

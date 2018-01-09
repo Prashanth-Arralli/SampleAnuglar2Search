@@ -34,7 +34,7 @@ export class SearchPageComponent implements OnInit {
         this.description = res[0].description;
         this.doctype = res[0].doctype
         //post process based on doctype
-        if (this.doctype === 'act') { // act -show sections
+        if (this.doctype === 'acts') { // act -show sections
           this.sections = [];
           res[0].sections.map((it) => {
             this.sections.push(it);
