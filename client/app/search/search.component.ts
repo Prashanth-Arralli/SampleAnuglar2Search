@@ -40,6 +40,21 @@ export class SearchComponent implements OnInit {
     this.activatedRoute.queryParams.subscribe((params: Params) => {
         this.key = params['q'];
     });
+
+    this.router.events.subscribe((event) => {
+      if (event.url) {
+        this.refresh(decodeURI(event.url.split('=')[1]));
+      }
+    });
+  }
+
+  refresh(key) {
+    this.key = key;
+    if (this.keywords.length){
+      this.getResults();
+    } else {
+      this.getKeywords();
+    }
   }
 
   //fetch Results on Enter - typeahead comp - listens to event
@@ -142,7 +157,7 @@ export class SearchComponent implements OnInit {
         this.doctypes = [];
       }
       //check if data equals total db count - applicable on fetch more
-      if (this.startIndex === 1 || this.searchList.length !== this.total) {
+      if ((this.startIndex === 1 || this.searchList.length !== this.total) && this.searchList.length < 401) {
         const startIndex = this.startIndex;
         const maxLimit = this.maxLimit;
         const years = this.years;
