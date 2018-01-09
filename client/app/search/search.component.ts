@@ -154,9 +154,9 @@ export class SearchComponent implements OnInit {
           res => {
             res.data.map((item) => {
               let keys = key.split(" ");
+              item.description = this.strip(item.description);
               keys.map((it) => {
-                item.description = this.strip(item.description);
-                item.description = item.description.replace(new RegExp(it, 'g'), `<strong>${it}</strong>`);
+                item.description = item.description.replace(new RegExp(it, 'gi'), `<strong>${it}</strong>`);
               })
             })
             this.total = res.total;
