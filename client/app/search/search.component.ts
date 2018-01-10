@@ -1,7 +1,7 @@
 //Description - search list page(filters) - fetches all data here and propagates relevant data to children
 
 import { Component, OnInit } from '@angular/core';
-import {Router, ActivatedRoute, Params} from '@angular/router';
+import {Router, ActivatedRoute, Params, NavigationStart} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
 import { SearchService } from '../services/search.service';
 
@@ -41,7 +41,7 @@ export class SearchComponent implements OnInit {
         this.key = params['q'];
     });
 
-    this.router.events.subscribe((event) => {
+    this.router.events.subscribe((event: NavigationStart) => {
       if (event.url) {
         this.refresh(decodeURI(event.url.split('=')[1]));
       }
@@ -75,12 +75,13 @@ export class SearchComponent implements OnInit {
         if (this.key && this.keywords.indexOf(this.key) !== -1) {
           this.getResults();
         } else {
+          this.toasterService.pop("warning","Invalid Search", "Select from dropdown");
           this.router.navigateByUrl('/');
         }
       },
       error => {
         console.log(error);
-        this.toasterService.pop("error","error fetching search data", "please try again");
+        this.toasterService.pop("error","error fetching search data", "Try again");
       }
     )
   }

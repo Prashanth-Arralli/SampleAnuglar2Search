@@ -22,10 +22,8 @@ export class NgbdTypeaheadBasic {
 
   onEnterKey() {
     const key = (<HTMLInputElement>document.getElementById('typeahead-basic')).value;
-    if (key && this.states.indexOf(key) !==  -1) {
-      this.router.navigateByUrl('/search?q=' + key);
-      this.searchData.emit(key);
-    }
+    
+    this.searchData.emit(key);
   }
 
   search = (text$: Observable<string>) =>
