@@ -9,6 +9,8 @@
   <app-search-page-details [ngClass]="(((doctype=='acts' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length))? 'col-sm-9 search-page-details-border': 'search-page-details-nodata'"
                            [noLeftnav]="(((doctype=='acts' || doctype=='section') &&  sections.length) || (userqueries.length || cites.length || citedBy.length))"
                            [name]="name"
-                           [description]="description">
+                           [description]="description"
+                           [doctype]="doctype"
+                           [sections]="sections">
   </app-search-page-details>
 </div>

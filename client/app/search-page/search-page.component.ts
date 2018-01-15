@@ -63,7 +63,6 @@ export class SearchPageComponent implements OnInit {
           this.cites = res.data[0].citation ?[res.data[0].citation]: [];
           this.citedBy =  res.data[0].score ? [res.data[0].score]: [];
         }
-        console.log(this.sections)
       },
       error => {
         console.log(error);

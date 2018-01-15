@@ -8,6 +8,8 @@ import { Component, OnInit, Input } from '@angular/core';
 export class SearchPageDetailsComponent implements OnInit {
   @Input() name: string;
   @Input() description: string;
+  @Input() doctype: string;
+  @Input() sections: Array<object>;
   @Input() noLeftnav: boolean;
 
   constructor() { }

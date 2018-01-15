@@ -153,7 +153,6 @@ export class SearchComponent implements OnInit {
         typeFilters = typeFilters.filter((elem, index, self) => index === self.indexOf(elem));
         this.userQueries = userQueries.filter((elem, index, self) => index === self.indexOf(elem));
         this.userQueries.splice(this.userQueries.indexOf(key), 1);
-        console.log(userQueries);
         this.yearFilters = yearFilters.map((it) => {
           return { name: it, value: false }
         })
@@ -188,7 +187,6 @@ export class SearchComponent implements OnInit {
         const start = new Date().getTime();
         let sort = this.sort;
         this.loading = true;
-        console.log(this.loading);
         this.searchService.getSearchList(key, startIndex, maxLimit, years, doctypes, sort).subscribe(
           res => {
             res.data.map((item) => {
@@ -217,7 +215,7 @@ export class SearchComponent implements OnInit {
         );
       }
     } else {
-      console.log('select a valid one')
+      console.log('select a valid one');
     }
   }
 

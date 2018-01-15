@@ -1,10 +1,30 @@
 <div>
-<p [ngClass]="(noLeftnav) ? 'search-detail-title': 'search-detail-title search-page-details-nodata'">
+<div [ngClass]="(noLeftnav) ? 'search-detail-title': 'search-detail-title search-page-details-nodata'">
   {{name}}
-</p>
-<p [ngClass]="(noLeftnav) ? 'search-detail-description pt-1': 'search-detail-description search-page-details-nodata pt-1'"
+</div>
+<div [ngClass]="(noLeftnav) ? 'search-detail-description pt-1': 'search-detail-description search-page-details-nodata pt-1'"
    [innerHTML]="description">
-</p>
+</div>
+</div>
+<div *ngIf="doctype == 'acts' && sections && sections.length">
+  <div *ngFor="let item of sections" class="pt-1 pl-2">
+    <a routerLink="/search/{{item._id}}" routerLinkActive="active" class="search-list-title">{{item.name}}</a>
+    <div *ngIf="item.author && item.author.length" (click)="myModal.open()" class="search-list-author-css">Author</div>
+      <modal #myModal>
+          <modal-header>
+              <p><strong>Author Name(s)</strong></p>
+          </modal-header>
+          <modal-content>
+              <div *ngFor="let name of item.author">
+                <p class="pl-1">{{name}}</p>
+              </div>
+          </modal-content>
+          <modal-footer>
+              <button class="btn btn-primary" (click)="myModal.close()">close</button>
+          </modal-footer>
+      </modal>
+    <p class="search-list-description">{{item.description}}</p>
+  </div>
 </div>
 <!-- <p>
   search-page-details works!

@@ -60,12 +60,6 @@ var SearchCtrl = (function (_super) {
             }
             else {
                 var _id_1 = req.params.id;
-                // interface ItemType {
-                //   data: any,
-                //   [type: string]: any,
-                //   meta: any
-                // };
-                //let response : ItemType  = { };
                 _this.model.find({ _id: _id_1 }, function (err, docs) {
                     if (err) {
                         console.error(err);
@@ -75,14 +69,15 @@ var SearchCtrl = (function (_super) {
                         var type_1 = docs[0].doctype;
                         //response.type = type;
                         if (type_1 == 'acts') {
-                            _this.model.find({ docparent: docs[0].docid }, { name: 1, description: 1 }, function (err, sections) {
+                            _this.model.find({ docparent: docs[0].docid }, { name: 1, description: 1, author: 1 }, function (err, sections) {
                                 if (err) {
                                     console.error(err);
                                     res.status(500).json(err);
                                 }
                                 else {
-                                    // response.meta = sections;
-                                    // response.data = docs;
+                                    sections.map(function (item) {
+                                        item.description = _this.stripHtmlAndFiftyWords(item.description);
+                                    });
                                     res.status(200).json({ data: docs, type: type_1, meta: sections });
                                 }
                             });
@@ -94,7 +89,6 @@ var SearchCtrl = (function (_super) {
                                     res.status(500).json(err);
                                 }
                                 else {
-                                    //return array(section) list instead of object(id, section) list
                                     sections.map(function (it) {
                                         if (it._id == _id_1) {
                                             //append active for the queried keyword
@@ -102,8 +96,6 @@ var SearchCtrl = (function (_super) {
                                         }
                                     });
                                     docs[0].sections = sections;
-                                    // response.data = docs;
-                                    // response.meta = sections;
                                     res.status(200).json({ data: docs, type: type_1, meta: sections });
                                 }
                             });
@@ -113,7 +105,6 @@ var SearchCtrl = (function (_super) {
                             if (docs[0].userqueries) {
                                 docs[0].userqueries.splice("\\n", 1);
                             }
-                            //response.data = docs;
                             res.status(200).json({ data: docs, type: type_1, meta: [] });
                         }
                     }
@@ -160,8 +151,7 @@ var SearchCtrl = (function (_super) {
                         var docs = result.docs;
                         docs.map(function (item) {
                             // truncate description to 50 words
-                            item.description = item.description.replace(/<[^>]+>/g, '');
-                            item.description = item.description.split(" ").splice(0, 50).join(" ");
+                            item.description = _this.stripHtmlAndRelevantWords(item.description, name_1);
                         });
                         var response = {
                             data: docs,
@@ -174,10 +164,22 @@ var SearchCtrl = (function (_super) {
         };
         return _this;
     }
-    SearchCtrl.prototype.strip = function (html) {
-        var tmp = document.createElement("DIV");
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || "";
+    SearchCtrl.prototype.stripHtmlAndFiftyWords = function (sentence) {
+        sentence = sentence.replace(/<[^>]+>/g, '');
+        return sentence.split(" ").splice(0, 50).join(" ");
+    };
+    SearchCtrl.prototype.stripHtmlAndRelevantWords = function (sentence, key) {
+        // sentence = sentence.replace(/<[^>]+>/g, '');
+        // sentence = sentence.split(" ");
+        // const keys = key.split(" ");
+        // if (keys.length > 1) {
+        //
+        // } else {
+        //
+        // }
+        // return ;
+        sentence = sentence.replace(/<[^>]+>/g, '');
+        return sentence.split(" ").splice(0, 50).join(" ");
     };
     SearchCtrl.prototype.hashCode = function () {
         var str = 'SearchSearchModule';

@@ -45,12 +45,6 @@ export default class SearchCtrl extends BaseCtrl {
       res.status(403).json({response: "unauthorized"});
     } else {
       const _id =req.params.id;
-      // interface ItemType {
-      //   data: any,
-      //   [type: string]: any,
-      //   meta: any
-      // };
-      //let response : ItemType  = { };
       this.model.find({_id}, (err, docs) => {
         if (err) {
           console.error(err);
@@ -59,13 +53,14 @@ export default class SearchCtrl extends BaseCtrl {
           let type = docs[0].doctype;
           //response.type = type;
           if (type == 'acts') {
-            this.model.find({docparent: docs[0].docid}, {name: 1, description: 1}, (err, sections) => {
+            this.model.find({docparent: docs[0].docid}, {name: 1, description: 1, author: 1}, (err, sections) => {
               if (err) {
                 console.error(err);
                 res.status(500).json(err);
               } else {
-                // response.meta = sections;
-                // response.data = docs;
+                sections.map((item) => {
+                  item.description = this.stripHtmlAndFiftyWords(item.description);
+                });
                 res.status(200).json({data: docs, type, meta: sections});
               }
             });
@@ -75,7 +70,6 @@ export default class SearchCtrl extends BaseCtrl {
                 console.error(err);
                 res.status(500).json(err);
               } else {
-                //return array(section) list instead of object(id, section) list
                 sections.map((it) => {
                   if (it._id == _id) {
                     //append active for the queried keyword
@@ -83,8 +77,6 @@ export default class SearchCtrl extends BaseCtrl {
                   }
                 });
                 docs[0].sections = sections;
-                // response.data = docs;
-                // response.meta = sections;
                 res.status(200).json({data: docs, type, meta: sections});
               }
             });
@@ -93,7 +85,6 @@ export default class SearchCtrl extends BaseCtrl {
             if (docs[0].userqueries) {
               docs[0].userqueries.splice("\\n", 1);
             }
-            //response.data = docs;
             res.status(200).json({data: docs, type, meta: []});
           }
         }
@@ -144,8 +135,8 @@ export default class SearchCtrl extends BaseCtrl {
           let docs = result.docs;
           docs.map((item) => {
             // truncate description to 50 words
-            item.description = item.description.replace(/<[^>]+>/g, '');
-            item.description = item.description.split(" ").splice(0, 50).join(" ");
+            item.description = this.stripHtmlAndRelevantWords(item.description , name);
+
           })
           let response = {
             data: docs,
@@ -157,10 +148,23 @@ export default class SearchCtrl extends BaseCtrl {
     }
   }
 
-  strip(html) {
-   var tmp = document.createElement("DIV");
-   tmp.innerHTML = html;
-   return tmp.textContent || tmp.innerText || "";
+  stripHtmlAndFiftyWords(sentence) {
+    sentence = sentence.replace(/<[^>]+>/g, '');
+    return sentence.split(" ").splice(0, 50).join(" ");
+  }
+
+  stripHtmlAndRelevantWords(sentence, key) {
+    // sentence = sentence.replace(/<[^>]+>/g, '');
+    // sentence = sentence.split(" ");
+    // const keys = key.split(" ");
+    // if (keys.length > 1) {
+    //
+    // } else {
+    //
+    // }
+    // return ;
+    sentence = sentence.replace(/<[^>]+>/g, '');
+    return sentence.split(" ").splice(0, 50).join(" ");
   }
 
   hashCode(){
