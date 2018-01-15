@@ -74,9 +74,7 @@ export class SearchComponent implements OnInit {
     this.searchService.getKeywords().subscribe(
       res => {
         res.map(item => {
-          item.userqueries.map((it) => {
-            this.keywords.push(it);
-          });
+          this.keywords.push(item._id);
         });
         this.keywords = this.keywords.filter((elem, index, self) => index === self.indexOf(elem));
         if (this.key) {

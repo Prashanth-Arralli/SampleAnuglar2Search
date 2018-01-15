@@ -1,8 +1,11 @@
 import Search from '../models/search';
+import UserQueries from '../models/userqueries';
+
 import BaseCtrl from './base';
 
 export default class SearchCtrl extends BaseCtrl {
   model = Search;
+  queryModel = UserQueries;
 
   getKeywords = (req, res) => {
     //check for user authorization id in headers and compare with same hash code generated in server side(hashCode function)
@@ -10,7 +13,7 @@ export default class SearchCtrl extends BaseCtrl {
       res.status(403).json({response: "unauthorized"});
     } else {
       //filtes non-empty userqueries only
-      this.model.find({userqueries: { $exists: true, $ne: [] }},{userqueries: 1}, (err, docs) => {
+      this.queryModel.find({},{_id: 1}, (err, docs) => {
         if (err) {
           console.error(err);
           res.status(500).json(err);

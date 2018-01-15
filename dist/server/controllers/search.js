@@ -11,12 +11,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var search_1 = require("../models/search");
+var userqueries_1 = require("../models/userqueries");
 var base_1 = require("./base");
 var SearchCtrl = (function (_super) {
     __extends(SearchCtrl, _super);
     function SearchCtrl() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.model = search_1.default;
+        _this.queryModel = userqueries_1.default;
         _this.getKeywords = function (req, res) {
             //check for user authorization id in headers and compare with same hash code generated in server side(hashCode function)
             if (!req.headers.authorization || _this.hashCode().toString() !== req.headers.authorization.split("=")[1].toString()) {
@@ -24,7 +26,7 @@ var SearchCtrl = (function (_super) {
             }
             else {
                 //filtes non-empty userqueries only
-                _this.model.find({ userqueries: { $exists: true, $ne: [] } }, { userqueries: 1 }, function (err, docs) {
+                _this.queryModel.find({}, { _id: 1 }, function (err, docs) {
                     if (err) {
                         console.error(err);
                         res.status(500).json(err);
