@@ -27,8 +27,9 @@ export default class SearchCtrl extends BaseCtrl {
       res.status(403).json({response: "unauthorized"});
     } else {
       const key = req.query.key;
+      //args['$text'] = { '$search': `"\"${name}\""` }
       //fetch only required fields using projections
-      this.model.find({userqueries: key},{doctype: 1, year: 1, category: 1}, (err, docs) => {
+      this.model.find({'$text': { '$search': `"\"${key}\""` }},{doctype: 1, year: 1, userqueries: 1}, (err, docs) => {
         if (err) {
           console.error(err);
           res.status(500).json(err);
@@ -44,23 +45,28 @@ export default class SearchCtrl extends BaseCtrl {
       res.status(403).json({response: "unauthorized"});
     } else {
       const _id =req.params.id;
+      // interface ItemType {
+      //   data: any,
+      //   [type: string]: any,
+      //   meta: any
+      // };
+      //let response : ItemType  = { };
       this.model.find({_id}, (err, docs) => {
         if (err) {
           console.error(err);
           res.status(500).json(err);
         } else {
           let type = docs[0].doctype;
+          //response.type = type;
           if (type == 'acts') {
-            this.model.find({docparent: docs[0].docid}, {name: 1}, (err, sections) => {
+            this.model.find({docparent: docs[0].docid}, {name: 1, description: 1}, (err, sections) => {
               if (err) {
                 console.error(err);
                 res.status(500).json(err);
               } else {
-                //return array(section) list instead of object(id, section) list
-                docs[0].sections = sections.map((it) => {
-                  return it.name;
-                });
-                res.status(200).json(docs);
+                // response.meta = sections;
+                // response.data = docs;
+                res.status(200).json({data: docs, type, meta: sections});
               }
             });
           } else if ( type == 'section' ) {
@@ -70,15 +76,16 @@ export default class SearchCtrl extends BaseCtrl {
                 res.status(500).json(err);
               } else {
                 //return array(section) list instead of object(id, section) list
-                sections = sections.map((it) => {
+                sections.map((it) => {
                   if (it._id == _id) {
                     //append active for the queried keyword
                     it.name = it.name + '(Active)'
                   }
-                  return it.name;
                 });
                 docs[0].sections = sections;
-                res.status(200).json(docs);
+                // response.data = docs;
+                // response.meta = sections;
+                res.status(200).json({data: docs, type, meta: sections});
               }
             });
           } else {
@@ -86,8 +93,8 @@ export default class SearchCtrl extends BaseCtrl {
             if (docs[0].userqueries) {
               docs[0].userqueries.splice("\\n", 1);
             }
-            console.log(docs[0].userqueries);
-            res.status(200).json(docs);
+            //response.data = docs;
+            res.status(200).json({data: docs, type, meta: []});
           }
         }
       })
@@ -108,7 +115,7 @@ export default class SearchCtrl extends BaseCtrl {
       };
       var args: Type = {};
       //use search text - indexed in mongo db
-      args['$text'] = { '$search': name }
+      args['$text'] = { '$search': `"\"${name}\""` }
       // add filters only if exists
       if (req.query.year) {
         args.year = { $in: req.query.year.split(',')};
@@ -116,8 +123,19 @@ export default class SearchCtrl extends BaseCtrl {
       if (req.query.doctype) {
         args.doctype = {$in: req.query.doctype.split(',')};
       }
+
+      // Sorts
+      let type = req.query.sort;
+      let sort = (type === 'Relevance') ? { score: {"$meta": "textScore"} }
+                                         : (type === 'Most Recent') ? {'datePublished': -1, 'year': -1 }
+                                                                : { 'datePublished': 1, 'year': 1 };
+
+      //Fetch Results
       let total = 0;
-      this.model.paginate(args, {page: Number(startIndex), limit: Number(maxLimit),sort: { score: {"$meta": "textScore"} } ,select: {score: {"$meta": "textScore"}, 'name':1, 'description': 1}})
+      this.model.paginate(args, { page: Number(startIndex),
+                                  limit: Number(maxLimit),
+                                  sort: sort,
+                                  select: {score: {"$meta": "textScore"}, 'name':1, 'description': 1, 'author': 1}})
       .then((result, err) => {
         if (err) {
           console.error(err);
@@ -126,6 +144,7 @@ export default class SearchCtrl extends BaseCtrl {
           let docs = result.docs;
           docs.map((item) => {
             // truncate description to 50 words
+            item.description = item.description.replace(/<[^>]+>/g, '');
             item.description = item.description.split(" ").splice(0, 50).join(" ");
           })
           let response = {
@@ -136,6 +155,12 @@ export default class SearchCtrl extends BaseCtrl {
         }
       })
     }
+  }
+
+  strip(html) {
+   var tmp = document.createElement("DIV");
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || "";
   }
 
   hashCode(){

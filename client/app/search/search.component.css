@@ -13,3 +13,11 @@
   margin: 0 auto;
   width: 75%;
 }
+.search-sort {
+  display: inline-block;
+  float: right;
+}
+
+.search-time-taken {
+  display: inline-block;
+}

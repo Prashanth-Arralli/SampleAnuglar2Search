@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Search } from '../shared/models/search.model';
 
 @Component({
   selector: 'app-search-page-leftnav',
@@ -7,7 +8,7 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class SearchPageLeftnavComponent implements OnInit {
   @Input() doctype: string;
-  @Input() sections: Array<string>;
+  @Input() sections: Array<object>;
   @Input() userqueries: Array<string>;
   @Input() cites: Array<string>;
   @Input() citedBy: Array<string>;

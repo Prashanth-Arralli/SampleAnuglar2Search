@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import {Router, ActivatedRoute, Params, NavigationStart} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
 import { SearchService } from '../services/search.service';
+import { Title }     from '@angular/platform-browser';
 
 @Component({
   selector: 'app-search',
@@ -19,6 +20,7 @@ export class SearchComponent implements OnInit {
   previousSearch = '';
   yearFilters = [];
   typeFilters = [];
+  userQueries = [];
   categoryFilters = [];
   years = [];
   doctypes = [];
@@ -27,12 +29,14 @@ export class SearchComponent implements OnInit {
   total = 0;
   timeTaken = 0;
   filtersActive = true;
+  sort = 'Relevance';
 
 
   constructor(private searchService: SearchService,
               private activatedRoute: ActivatedRoute,
-            private router: Router,
-           private toasterService: ToasterService) { }
+              private router: Router,
+              private toasterService: ToasterService,
+              private titleService: Title) { }
 
   ngOnInit() {
     //fetch keywords and set keyword from URL
@@ -42,7 +46,7 @@ export class SearchComponent implements OnInit {
     });
 
     this.router.events.subscribe((event: NavigationStart) => {
-      if (event.url) {
+      if (event.url && event.url.split('=')[1]) {
         this.refresh(decodeURI(event.url.split('=')[1]));
       }
     });
@@ -50,6 +54,7 @@ export class SearchComponent implements OnInit {
 
   refresh(key) {
     this.key = key;
+    this.sort = 'Relevance';
     if (this.keywords.length){
       this.getResults();
     } else {
@@ -60,6 +65,8 @@ export class SearchComponent implements OnInit {
   //fetch Results on Enter - typeahead comp - listens to event
   searchResult(key) {
     this.key = key;
+    this.sort = 'Relevance';
+    this.resetState(key);
     this.getResults();
   }
 
@@ -72,7 +79,7 @@ export class SearchComponent implements OnInit {
           });
         });
         this.keywords = this.keywords.filter((elem, index, self) => index === self.indexOf(elem));
-        if (this.key && this.keywords.indexOf(this.key) !== -1) {
+        if (this.key) {
           this.getResults();
         } else {
           this.toasterService.pop("warning","Invalid Search", "Select from dropdown");
@@ -97,6 +104,13 @@ export class SearchComponent implements OnInit {
     this.getResultOnSearch();
   }
 
+  //  Sorts
+  applySort(type) {
+    this.sort = type;
+    this.resetState('');
+    this.getResults();
+  }
+
   // reset after change in keyword or applying filters
   resetState(key) {
     this.startIndex = 1;
@@ -110,7 +124,7 @@ export class SearchComponent implements OnInit {
   //fetch results on click- search button
   getResultOnSearch() {
     const key = document.getElementById('typeahead-basic').innerHTML || this.key;
-    if (this.keywords.indexOf(key) !== -1) {
+    if (key) {
       this.key = key;
       this.getResults();
     }
@@ -122,6 +136,7 @@ export class SearchComponent implements OnInit {
       res => {
         let yearFilters = [];
         let typeFilters = [];
+        let userQueries = [];
         res.map((item) => {
           if (item.year) {
             yearFilters = yearFilters.concat(item.year);
@@ -129,10 +144,16 @@ export class SearchComponent implements OnInit {
           if (item.doctype) {
             typeFilters = typeFilters.concat(item.doctype);
           }
+          if (item.userqueries) {
+            item.userqueries.splice(item.userqueries.indexOf("↵"), 1);
+            userQueries = userQueries.concat(item.userqueries);
+          }
         })
         yearFilters = yearFilters.filter((elem, index, self) => index === self.indexOf(elem));
         typeFilters = typeFilters.filter((elem, index, self) => index === self.indexOf(elem));
-
+        this.userQueries = userQueries.filter((elem, index, self) => index === self.indexOf(elem));
+        this.userQueries.splice(this.userQueries.indexOf(key), 1);
+        console.log(userQueries);
         this.yearFilters = yearFilters.map((it) => {
           return { name: it, value: false }
         })
@@ -150,6 +171,7 @@ export class SearchComponent implements OnInit {
 
   getResults() {
     let key = this.key
+    this.titleService.setTitle( 'Search page - ' + key );
     if (key) {
       //if key is different than previous fetch - reset filters & data
       if (key !== this.previousSearch) {
@@ -164,15 +186,17 @@ export class SearchComponent implements OnInit {
         const years = this.years;
         const doctypes = this.doctypes
         const start = new Date().getTime();
+        let sort = this.sort;
         this.loading = true;
         console.log(this.loading);
-        this.searchService.getSearchList(key, startIndex, maxLimit, years, doctypes).subscribe(
+        this.searchService.getSearchList(key, startIndex, maxLimit, years, doctypes, sort).subscribe(
           res => {
             res.data.map((item) => {
               let keys = key.split(" ");
-              item.description = this.strip(item.description);
               keys.map((it) => {
-                item.description = item.description.replace(new RegExp(it, 'gi'), `<strong>${it}</strong>`);
+                if ( it.length > 1 ) {
+                  item.description = item.description.replace(new RegExp(it, 'gi'), `<strong>${it}</strong>`);
+                }
               })
             })
             this.total = res.total;
@@ -208,11 +232,6 @@ export class SearchComponent implements OnInit {
       this.startIndex++;
       this.getResultOnSearch();
     }
-  }
-  strip(html) {
-   var tmp = document.createElement("DIV");
-   tmp.innerHTML = html;
-   return tmp.textContent || tmp.innerText || "";
   }
 
 }

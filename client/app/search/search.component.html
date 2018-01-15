@@ -1,11 +1,25 @@
 <div class="row p-1">
   <div class="col-sm-3 search-filter-border">
-    <app-search-filter *ngIf="yearFilters.length && typeFilters.length" [yearFilters]="yearFilters" [typeFilters]="typeFilters" (applyFilter)="applyFilter($event)"></app-search-filter>
+    <app-search-filter *ngIf="yearFilters.length && typeFilters.length"
+                                      [yearFilters]="yearFilters"
+                                      [typeFilters]="typeFilters"
+                                      [userQueries]="userQueries"
+                                      (applyFilter)="applyFilter($event)"></app-search-filter>
   </div>
   <div [ngClass]="(filtersActive)? 'col-sm-9 search-list-border': 'search-list-nofilter'">
     <app-search-box [states]="keywords" (searchResult)="searchResult($event)"></app-search-box>
     <div *ngIf="timeTaken && searchList.length" class="pt-1">
-      Displaying <strong>1</strong> - <strong>{{searchList.length}}</strong> of <strong>{{total}}</strong> results <strong>({{timeTaken}} seconds)</strong>
+      <div class="search-time-taken">
+        Displaying <strong>1</strong> - <strong>{{searchList.length}}</strong> of <strong>{{total}}</strong> results <strong>({{timeTaken}} seconds)</strong>
+      </div>
+        <div class="dropdown pr-1 search-sort" dropdown>
+          <a dropdown-open style="font-style: italic; cursor: pointer;"> {{sort}} &#x25BC; </a>
+            <ul class="dropdown-menu">
+             <li><a class="pl-1" (click)="applySort('Relevance')">  Relevance</a></li>
+             <li><a class="pl-1" (click)="applySort('Most Recent')">  Most Recent</a></li>
+             <li><a class="pl-1" (click)="applySort('Least Recent')">  Least Recent</a></li>
+            </ul>
+        </div>
     </div>
     <div *ngIf="!searchList.length" class="pt-1">
       No results found

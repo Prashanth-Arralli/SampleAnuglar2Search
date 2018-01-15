@@ -10,3 +10,10 @@
   margin: auto;
   width: 0%;
 }
+
+.search-list-author-css {
+  padding-left: 5px;
+  color: #00bfff;
+  display: inline-block;
+  cursor: pointer;
+}

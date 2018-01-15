@@ -30,6 +30,8 @@ import {DropdownModule} from "ng2-dropdown";
 import { SearchService } from './services/search.service';
 import {ToasterModule, ToasterService} from 'angular2-toaster';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { Title }  from '@angular/platform-browser';
+import { ModalModule } from 'ng2-modal';
 
 @NgModule({
   declarations: [
@@ -57,7 +59,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     InfiniteScrollModule,
     DropdownModule,
     ToasterModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    ModalModule
   ],
   providers: [
     AuthService,
@@ -65,7 +68,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     AuthGuardAdmin,
     UserService,
     SearchService,
-    ToasterService
+    ToasterService,
+    Title
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

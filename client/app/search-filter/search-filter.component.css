@@ -5,3 +5,9 @@
 .filter-label-padding {
   padding-left: 5px;
 }
+.search-filter-query-css {
+  padding-left: 10px;
+  color: #00bfff;
+  display: inline-block;
+  cursor: pointer;
+}

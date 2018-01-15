@@ -2,6 +2,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { SearchService } from '../services/search.service';
+import { Title }     from '@angular/platform-browser';
 
 @Component({
   selector: 'app-home',
@@ -12,10 +13,12 @@ export class HomeComponent implements OnInit {
 
   keywords = [];
 
-  constructor(private searchService: SearchService) { }
+  constructor(private searchService: SearchService,
+              private titleService: Title) { }
 
   ngOnInit() {
     this.getKeywords();
+    this.titleService.setTitle( 'Homepage' );
   }
 
   //fetch keywords on init

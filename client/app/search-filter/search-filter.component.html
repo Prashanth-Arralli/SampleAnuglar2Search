@@ -10,3 +10,10 @@
         <input type="checkbox" [checked]="filter.value" (change)="addFilter(filter.name, 'years')" /><a class="filter-label-padding">{{filter.name}}</a>
       </div>
 </div>
+
+<div *ngIf="userQueries.length" class="pt-2 search-filter-align">
+  <a><strong> Related Queries</strong></a>
+  <div *ngFor="let query of userQueries">
+    <div class="search-filter-query-css" (click)="searchSelectedQuery(query)">{{query}}</div>
+  </div>
+</div>

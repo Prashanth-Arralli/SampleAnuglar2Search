@@ -41,8 +41,9 @@ var SearchCtrl = (function (_super) {
             }
             else {
                 var key = req.query.key;
+                //args['$text'] = { '$search': `"\"${name}\""` }
                 //fetch only required fields using projections
-                _this.model.find({ userqueries: key }, { doctype: 1, year: 1, category: 1 }, function (err, docs) {
+                _this.model.find({ '$text': { '$search': "\"\"" + key + "\"\"" } }, { doctype: 1, year: 1, userqueries: 1 }, function (err, docs) {
                     if (err) {
                         console.error(err);
                         res.status(500).json(err);
@@ -59,29 +60,34 @@ var SearchCtrl = (function (_super) {
             }
             else {
                 var _id_1 = req.params.id;
+                // interface ItemType {
+                //   data: any,
+                //   [type: string]: any,
+                //   meta: any
+                // };
+                //let response : ItemType  = { };
                 _this.model.find({ _id: _id_1 }, function (err, docs) {
                     if (err) {
                         console.error(err);
                         res.status(500).json(err);
                     }
                     else {
-                        var type = docs[0].doctype;
-                        if (type == 'acts') {
-                            _this.model.find({ docparent: docs[0].docid }, { name: 1 }, function (err, sections) {
+                        var type_1 = docs[0].doctype;
+                        //response.type = type;
+                        if (type_1 == 'acts') {
+                            _this.model.find({ docparent: docs[0].docid }, { name: 1, description: 1 }, function (err, sections) {
                                 if (err) {
                                     console.error(err);
                                     res.status(500).json(err);
                                 }
                                 else {
-                                    //return array(section) list instead of object(id, section) list
-                                    docs[0].sections = sections.map(function (it) {
-                                        return it.name;
-                                    });
-                                    res.status(200).json(docs);
+                                    // response.meta = sections;
+                                    // response.data = docs;
+                                    res.status(200).json({ data: docs, type: type_1, meta: sections });
                                 }
                             });
                         }
-                        else if (type == 'section') {
+                        else if (type_1 == 'section') {
                             _this.model.find({ docparent: docs[0].docparent }, { name: 1 }, function (err, sections) {
                                 if (err) {
                                     console.error(err);
@@ -89,15 +95,16 @@ var SearchCtrl = (function (_super) {
                                 }
                                 else {
                                     //return array(section) list instead of object(id, section) list
-                                    sections = sections.map(function (it) {
+                                    sections.map(function (it) {
                                         if (it._id == _id_1) {
                                             //append active for the queried keyword
                                             it.name = it.name + '(Active)';
                                         }
-                                        return it.name;
                                     });
                                     docs[0].sections = sections;
-                                    res.status(200).json(docs);
+                                    // response.data = docs;
+                                    // response.meta = sections;
+                                    res.status(200).json({ data: docs, type: type_1, meta: sections });
                                 }
                             });
                         }
@@ -106,8 +113,8 @@ var SearchCtrl = (function (_super) {
                             if (docs[0].userqueries) {
                                 docs[0].userqueries.splice("\\n", 1);
                             }
-                            console.log(docs[0].userqueries);
-                            res.status(200).json(docs);
+                            //response.data = docs;
+                            res.status(200).json({ data: docs, type: type_1, meta: [] });
                         }
                     }
                 });
@@ -125,7 +132,7 @@ var SearchCtrl = (function (_super) {
                 ;
                 var args = {};
                 //use search text - indexed in mongo db
-                args['$text'] = { '$search': name_1 };
+                args['$text'] = { '$search': "\"\"" + name_1 + "\"\"" };
                 // add filters only if exists
                 if (req.query.year) {
                     args.year = { $in: req.query.year.split(',') };
@@ -133,8 +140,17 @@ var SearchCtrl = (function (_super) {
                 if (req.query.doctype) {
                     args.doctype = { $in: req.query.doctype.split(',') };
                 }
+                // Sorts
+                var type = req.query.sort;
+                var sort = (type === 'Relevance') ? { score: { "$meta": "textScore" } }
+                    : (type === 'Most Recent') ? { 'datePublished': -1, 'year': -1 }
+                        : { 'datePublished': 1, 'year': 1 };
+                //Fetch Results
                 var total = 0;
-                _this.model.paginate(args, { page: Number(startIndex), limit: Number(maxLimit), sort: { score: { "$meta": "textScore" } }, select: { score: { "$meta": "textScore" }, 'name': 1, 'description': 1 } })
+                _this.model.paginate(args, { page: Number(startIndex),
+                    limit: Number(maxLimit),
+                    sort: sort,
+                    select: { score: { "$meta": "textScore" }, 'name': 1, 'description': 1, 'author': 1 } })
                     .then(function (result, err) {
                     if (err) {
                         console.error(err);
@@ -144,6 +160,7 @@ var SearchCtrl = (function (_super) {
                         var docs = result.docs;
                         docs.map(function (item) {
                             // truncate description to 50 words
+                            item.description = item.description.replace(/<[^>]+>/g, '');
                             item.description = item.description.split(" ").splice(0, 50).join(" ");
                         });
                         var response = {
@@ -157,6 +174,11 @@ var SearchCtrl = (function (_super) {
         };
         return _this;
     }
+    SearchCtrl.prototype.strip = function (html) {
+        var tmp = document.createElement("DIV");
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || "";
+    };
     SearchCtrl.prototype.hashCode = function () {
         var str = 'SearchSearchModule';
         var hash = 0;

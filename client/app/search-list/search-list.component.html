@@ -6,6 +6,20 @@
   (scrolled)="getMore()">
   <div *ngFor="let item of searchList" class="pt-1">
     <a routerLink="/search/{{item._id}}" routerLinkActive="active" class="search-list-title">{{item.name}}</a>
+    <div *ngIf="item.author && item.author.length" (click)="myModal.open()" class="search-list-author-css">Author</div>
+      <modal #myModal>
+          <modal-header>
+              <p><strong>Author Name(s)</strong></p>
+          </modal-header>
+          <modal-content>
+              <div *ngFor="let name of item.author">
+                <p class="pl-1">{{name}}</p>
+              </div>
+          </modal-content>
+          <modal-footer>
+              <button class="btn btn-primary" (click)="myModal.close()">close</button>
+          </modal-footer>
+      </modal>
     <p class="search-list-description" [innerHTML]="item.description"></p>
   </div>
   <div *ngIf="loading">

@@ -2,7 +2,9 @@
 
 import { Component, OnInit } from '@angular/core';
 import { SearchService } from '../services/search.service';
+import {Router, Params, NavigationStart} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
+import { Title }     from '@angular/platform-browser';
 
 @Component({
   selector: 'app-search-page',
@@ -12,7 +14,9 @@ import {ToasterService} from 'angular2-toaster';
 export class SearchPageComponent implements OnInit {
 
   constructor(private searchService: SearchService,
-              private toasterService: ToasterService) { }
+              private router: Router,
+              private toasterService: ToasterService,
+              private titleService: Title) { }
 
   name = '';
   description =  '';
@@ -25,40 +29,45 @@ export class SearchPageComponent implements OnInit {
   ngOnInit() {
     const id = window.location.pathname.split('/')[2];
     this.findByDocId(id);
+    this.router.events.subscribe((event: NavigationStart) => {
+      if (event.url && event.url.split('/')[2]) {
+        this.refresh(decodeURI(event.url.split('/')[2]));
+      }
+    });
+  }
+
+  refresh(id) {
+    this.findByDocId(id);
   }
 
   findByDocId(id) {
     this.searchService.findByDocId(id).subscribe(
       res => {
-        this.name = res[0].name;
-        this.description = res[0].description;
-        this.doctype = res[0].doctype
+        this.name = res.data[0].name;
+        this.titleService.setTitle( this.name );
+        this.description = res.data[0].description;
+        this.doctype = res.type
         //post process based on doctype
         if (this.doctype === 'acts') { // act -show sections
-          this.sections = [];
-          res[0].sections.map((it) => {
-            this.sections.push(it);
-          })
+          this.sections = res.meta;
         } else if (this.doctype === 'section') { //section - show sections and bold active one
           this.sections = [];
-          res[0].sections.map((it) => {
-            if ( it.indexOf('(Active)') === -1 ) {
-              this.sections.push(it);
-            } else {
-              this.sections.push('<strong>' + it + '</strong>');
+          res.meta.map((it) => {
+            if ( it.name.indexOf('(Active)') !== -1 ) {
+              it.name = `<strong>${it.name}</strong>`;
             }
-
-          })
+          });
+          this.sections = res.meta;
         } else { //case - show details
-          this.userqueries = res[0].userqueries ? res[0].userqueries: [];
-          this.cites = res[0].citation ?[res[0].citation]: [];
-          this.citedBy =  res[0].score ? [res[0].score]: [];
+          this.userqueries = res.data[0].userqueries ? res.data[0].userqueries: [];
+          this.cites = res.data[0].citation ?[res.data[0].citation]: [];
+          this.citedBy =  res.data[0].score ? [res.data[0].score]: [];
         }
+        console.log(this.sections)
       },
       error => {
         console.log(error);
-        this.toasterService.pop('error', "error fetching search data", "please try again")
-        //window.alert("error fetching search data, please try again")
+        this.toasterService.pop('error', "error fetching search data", "please try again");
       }
     )
   }

@@ -19,7 +19,7 @@ export class SearchBoxComponent implements OnInit {
 
   //event triggers on Enter from typeahead comp and propagates event to parent
   searchData(key) {
-    if (key && this.states.indexOf(key) !== -1) {
+    if (key) {
       this.router.navigateByUrl('/search?q=' + key);
       this.searchResult.emit(key);
     } else {
@@ -31,7 +31,7 @@ export class SearchBoxComponent implements OnInit {
   // on Click search button - activte search routes & event neeeded only for seatch page(not home)
   openSearchList() {
     const key = (<HTMLInputElement>document.getElementById('typeahead-basic')).value;
-    if (key && this.states.indexOf(key) !==  -1) {
+    if (key) {
       this.router.navigateByUrl('/search?q=' + key);
       this.searchResult.emit(key);
     } else {

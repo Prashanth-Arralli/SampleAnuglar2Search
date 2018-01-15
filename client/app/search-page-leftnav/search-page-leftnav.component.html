@@ -1,6 +1,7 @@
 <div class="pl-1" *ngIf="doctype == 'acts' || doctype == 'section'">
   <div *ngFor="let section of sections">
-    <p [innerHTML]="section">{{section}}</p>
+    <a routerLink="/search/{{section._id}}" routerLinkActive="active" class="" [innerHTML]="section.name" class="search-page-section-css"></a>
+    <br>
   </div>
 </div>
 <div class="pl-1" *ngIf="doctype == 'case'">
