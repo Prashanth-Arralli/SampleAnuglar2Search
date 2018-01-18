@@ -139,8 +139,8 @@ export class SearchComponent implements OnInit {
           if (item.year) {
             yearFilters = yearFilters.concat(item.year);
           }
-          if (item.doctype) {
-            typeFilters = typeFilters.concat(item.doctype);
+          if (item.doc_type) {
+            typeFilters = typeFilters.concat(item.doc_type);
           }
           if (item.userqueries) {
             item.userqueries.splice(item.userqueries.indexOf("↵"), 1);
@@ -219,7 +219,7 @@ export class SearchComponent implements OnInit {
 
   setResultAndCss(data) {
     this.searchList = this.searchList.concat(data);
-    this.filtersActive = this.yearFilters.length && this.typeFilters.length ? true: false;
+    this.filtersActive = (this.yearFilters.length || this.typeFilters.length) ? true: false;
   }
 
   // showMore - event triggers in search-list-component on scrolling down the window

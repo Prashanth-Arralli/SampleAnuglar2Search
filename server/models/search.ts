@@ -5,11 +5,11 @@ const searchSchema = new mongoose.Schema({
   id: mongoose.Schema.Types.ObjectId,
   name: String,
   description: String,
-  doctype: String,
+  doc_type: String,
   year: String,
   category: String,
-  docid: Number,
-  docparent: Number,
+  doc_id: Number,
+  doc_parent: Number,
   sections:[String],
   userqueries:[String]
 }) ;

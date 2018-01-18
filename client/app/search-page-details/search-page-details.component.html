@@ -6,7 +6,7 @@
    [innerHTML]="description">
 </div>
 </div>
-<div *ngIf="doctype == 'acts' && sections && sections.length">
+<div *ngIf="doctype == 'act' && sections && sections.length">
   <div *ngFor="let item of sections" class="pt-1 pl-2">
     <a routerLink="/search/{{item._id}}" routerLinkActive="active" class="search-list-title">{{item.name}}</a>
     <div *ngIf="item.author && item.author.length" (click)="myModal.open()" class="search-list-author-css">Author</div>

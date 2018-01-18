@@ -32,7 +32,7 @@ export default class SearchCtrl extends BaseCtrl {
       const key = req.query.key;
       //args['$text'] = { '$search': `"\"${name}\""` }
       //fetch only required fields using projections
-      this.model.find({'$text': { '$search': `"\"${key}\""` }},{doctype: 1, year: 1, userqueries: 1}, (err, docs) => {
+      this.model.find({'$text': { '$search': `"\"${key}\""` }},{doc_type: 1, year: 1, userqueries: 1}, (err, docs) => {
         if (err) {
           console.error(err);
           res.status(500).json(err);
@@ -53,10 +53,10 @@ export default class SearchCtrl extends BaseCtrl {
           console.error(err);
           res.status(500).json(err);
         } else {
-          let type = docs[0].doctype;
+          let type = docs[0].doc_type;
           //response.type = type;
-          if (type == 'acts') {
-            this.model.find({docparent: docs[0].docid}, {name: 1, description: 1, author: 1}, (err, sections) => {
+          if (type == 'act') {
+            this.model.find({doc_parent: docs[0].doc_id}, {name: 1, description: 1, author: 1}, (err, sections) => {
               if (err) {
                 console.error(err);
                 res.status(500).json(err);
@@ -68,7 +68,7 @@ export default class SearchCtrl extends BaseCtrl {
               }
             });
           } else if ( type == 'section' ) {
-            this.model.find({docparent: docs[0].docparent}, {name: 1}, (err, sections) => {
+            this.model.find({doc_parent: docs[0].doc_parent}, {name: 1}, (err, sections) => {
               if (err) {
                 console.error(err);
                 res.status(500).json(err);
@@ -112,10 +112,11 @@ export default class SearchCtrl extends BaseCtrl {
       args['$text'] = { '$search': `"\"${name}\""` }
       // add filters only if exists
       if (req.query.year) {
-        args.year = { $in: req.query.year.split(',')};
+        args.year = { $in: req.query.year.split(',').map(Number)};
       }
+      console.log(args);
       if (req.query.doctype) {
-        args.doctype = {$in: req.query.doctype.split(',')};
+        args.doc_type = {$in: req.query.doctype.split(',')};
       }
 
       // Sorts

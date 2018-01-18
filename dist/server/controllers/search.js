@@ -45,7 +45,7 @@ var SearchCtrl = (function (_super) {
                 var key = req.query.key;
                 //args['$text'] = { '$search': `"\"${name}\""` }
                 //fetch only required fields using projections
-                _this.model.find({ '$text': { '$search': "\"\"" + key + "\"\"" } }, { doctype: 1, year: 1, userqueries: 1 }, function (err, docs) {
+                _this.model.find({ '$text': { '$search': "\"\"" + key + "\"\"" } }, { doc_type: 1, year: 1, userqueries: 1 }, function (err, docs) {
                     if (err) {
                         console.error(err);
                         res.status(500).json(err);
@@ -68,10 +68,10 @@ var SearchCtrl = (function (_super) {
                         res.status(500).json(err);
                     }
                     else {
-                        var type_1 = docs[0].doctype;
+                        var type_1 = docs[0].doc_type;
                         //response.type = type;
-                        if (type_1 == 'acts') {
-                            _this.model.find({ docparent: docs[0].docid }, { name: 1, description: 1, author: 1 }, function (err, sections) {
+                        if (type_1 == 'act') {
+                            _this.model.find({ doc_parent: docs[0].doc_id }, { name: 1, description: 1, author: 1 }, function (err, sections) {
                                 if (err) {
                                     console.error(err);
                                     res.status(500).json(err);
@@ -85,7 +85,7 @@ var SearchCtrl = (function (_super) {
                             });
                         }
                         else if (type_1 == 'section') {
-                            _this.model.find({ docparent: docs[0].docparent }, { name: 1 }, function (err, sections) {
+                            _this.model.find({ doc_parent: docs[0].doc_parent }, { name: 1 }, function (err, sections) {
                                 if (err) {
                                     console.error(err);
                                     res.status(500).json(err);
@@ -128,10 +128,11 @@ var SearchCtrl = (function (_super) {
                 args['$text'] = { '$search': "\"\"" + name_1 + "\"\"" };
                 // add filters only if exists
                 if (req.query.year) {
-                    args.year = { $in: req.query.year.split(',') };
+                    args.year = { $in: req.query.year.split(',').map(Number) };
                 }
+                console.log(args);
                 if (req.query.doctype) {
-                    args.doctype = { $in: req.query.doctype.split(',') };
+                    args.doc_type = { $in: req.query.doctype.split(',') };
                 }
                 // Sorts
                 var type = req.query.sort;

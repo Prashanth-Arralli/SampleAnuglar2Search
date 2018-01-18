@@ -48,7 +48,7 @@ export class SearchPageComponent implements OnInit {
         this.description = res.data[0].description;
         this.doctype = res.type
         //post process based on doctype
-        if (this.doctype === 'acts') { // act -show sections
+        if (this.doctype === 'act') { // act -show sections
           this.sections = res.meta;
         } else if (this.doctype === 'section') { //section - show sections and bold active one
           this.sections = [];

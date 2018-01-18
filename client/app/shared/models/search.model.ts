@@ -3,10 +3,10 @@ export class Search {
   name?: string;
   url?: string;
   caseid?: string;
-  docid?: number;
+  doc_id?: number;
   summary?: string;
   description?: string;
-  doctype?: string;
+  doc_type?: string;
   year?: string;
   date?: string;
   author?: string;
@@ -18,6 +18,7 @@ export class Search {
   shares?: number;
   userqueries?: [string];
   docstatus?: string;
+  doc_parent?: number;
   category?: string;
   sections?: [string];
 }
